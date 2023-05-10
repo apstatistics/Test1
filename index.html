@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>A.P Statistics</title>
+	<script src="https://apis.google.com/js/api.js"></script>
+	<script>
+		gapi.load('client', function() {
+			gapi.client.init({
+				apiKey: 'AIzaSyA8CioOWf4YMRpRKaSEPgNEjIGVWo7bM-A'
+			}).then(function() {
+				return gapi.client.request({
+					path: 'https://www.googleapis.com/youtube/v3/search',
+					params: {
+						part: 'id',
+						q: 'Karmaland 5',
+						type: 'video',
+						maxResults: 100,
+						fields: 'items(id(videoId))'
+					}
+				});
+			}).then(function(response) {
+				var videoIds = response.result.items.map(function(item) {
+					return item.id.videoId;
+				});
+
+				return gapi.client.request({
+					path: 'https://www.googleapis.com/youtube/v3/videos',
+					params: {
+						part: 'statistics',
+						id: videoIds.join(','),
+						fields: 'items(statistics(viewCount))'
+					}
+				});
+			}).then(function(response) {
+				var totalViews = response.result.items.reduce(function(acc, item) {
+					return acc + parseInt(item.statistics.viewCount);
+				}, 0);
+
+				document.getElementById('views').textContent = 'Total de visualizaciones: ' + totalViews.toLocaleString();
+			});
+		});
+	</script>
+</head>
+<body>
+	<h1>A.P Statistics</h1>
+	<p>Karmaland 5</p>
+	<p id="views"></p>
+</body>
+</html>
